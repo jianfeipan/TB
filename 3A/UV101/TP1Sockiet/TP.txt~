@@ -1,0 +1,167 @@
+
+
+Texte du TP sur les sockets
+
+Yvon Kermarrec
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Les programmes sont disponibles depuis
+
+http://perso.enst-bretagne.fr/~kermarre/TPDIST/socket/
+
+ 
+
+ 
+*****************************************************************
+1ère partie : les sockets avec UDP
+
+ 
+
+-         récupérez et installez dans un répertoire les 2 fichiers Example1Receiver.java et Example1Sender.java. Ces 2 programmes mettent en œuvre une communication avec UDP
+
+-         consultez dans un premier temps le code et regardez comment les sockets sont gérées. Regardez en particulier les différents appels à l’API Java.
+
+-         compilez ce code puis dans 2 fenêtres, lancez ces programmes en respectant l’ordre avec les commandes  java Example1Receiver 2000 et java Example1Sender localhost 2000 "texte"  (localhost  référence ici la machine locale càd la machine sur laquelle le programme est lancé). Que se passe—il ?
+
+[Result] : processus sender termine et le processus receivor a reçu le message (dans le terminal 2 on voit le message "text")
+
+-         relancez ensuite le code mais avec un ordre différent : i.e. ; java Example1Sender localhost 2000 "texte"  puis java Example1Receiver 2000 (toujours à partir de 2 fenètres différentes). Que se passe t il ? expliquez.
+
+[Result] : il y a rien afficher dans la deuxième terminale.
+
+-         Connectez vous ensuite une autre machine en ouvrant une fenêtre sur une machine distante. Relancez Example1Receiver puis sur l’autre machine et java Example1Sender machine-distante 2000 "texte" (avec machine distante qui est le nom de la machine sur laquelle fonctionne Example1Receiver).
+
+-         Relancez les mêmes séquences d ‘opérations mais avec une chaîne de caractères plus longue en paramètre). Que se passe t il ? expliquez.
+[Result] : Il a reçu les premières dix caractères dans le message.
+
+
+-         Rajoutez du code afin que le serveur attende un maximum de 5 secondes (méthode setSoTimeout). Que se passe t il lorsque le délai est écoulé ?
+[Result] :  Une exception après 5 seconds.
+
+java.net.SocketTimeoutException: Receive timed out
+	at java.net.PlainDatagramSocketImpl.receive0(Native Method)
+	at java.net.AbstractPlainDatagramSocketImpl.receive(AbstractPlainDatagramSocketImpl.java:144)
+	at java.net.DatagramSocket.receive(DatagramSocket.java:812)
+	at Example1Receiver_withTimeOut.main(Example1Receiver_withTimeOut.java:34)
+
+
+
+-         Modifiez le code de Example1Receiver afin qu’il boucle sur la réception de message. Que se passe t il s’il y a 2 émetteurs désormais au lieu d’un seul ? vérifiez que les messages émis sont bien reçus.
+
+       [Result] :  while(true){
+		    mySocket.receive(datagram);
+		    String message = new String(buffer);
+		    System.out.println(message);	
+	    }
+
+            //mySocket.close( );
+
+		oui, bien reçu.
+
+
+ 
+
+ 
+*****************************************************************
+2ème partie : les sockets avec TCP
+
+ 
+
+-         récupérez et installez dans un répertoire les 2 fichiers Example4ConnectionAcceptor.java et Example4ConnectionRequestor.java. Ces 2 programmes mettent en œuvre une communication avec TCP
+
+-         consultez dans un premier temps le code et regardez comment les sockets sont gérées. Regardez en particulier les différents appels à l’API Java.
+
+[Result] L'acceptor attend une requête pour la connection , une fois le requestor fait une demande de connection, l'acceptor accepte la connection et envoie le message.
+
+
+-         compilez ce code puis dans 2 fenêtres, lancez ces programmes en respectant l’ordre avec les commandes   java Example4ConnectionAcceptor 12345 « titi » et java Example4ConnectionRequestor localhost 12345. Que se passe—il ?
+
+-         relancez ensuite le code mais avec un ordre différent. Que se passe t il ? expliquez.
+	[Result] 
+	java.net.ConnectException: Connexion refusée
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:244)
+	at Example4ConnectionRequestor.main(Example4ConnectionRequestor.java:33)	
+
+
+	C'est parce que le port n'est pas encore bound avec un ServerSocket pour accepter une connection. 
+
+
+-         Modifiez le code afin que l’émetteur envoie une chaîne de caractère et un entier. Modifiez le récepteur également.
+[Result] 1 modifier l'acceptor seulement : ajouter un message socketOutput.println(1); ---> le Requestor a reçu que le string message mais pas le int.
+	 2 modifier le requestor : ajouter un socketInput.readLine(); pour récupérer un autre message/----> le requestor a reçu tous les deux message. 
+ 
+
+-         récupérez et installez dans un répertoire les 2 fichiers Example5* ainsi que MyStreamSocket.java. Cette classe java permet la séparation de la logique de l’application et de la logique de service, en masquant les détails de l’utilisation des sockets. Regardez le code puis compilez le et exécutez le. En quoi ces derniers programmes sont-ils différents de ceux de l’exemple 4 ? expliquez l’impact pour le programmeur.
+[Result] 1 Comparé avec l'example1 (Datagram UDP), la taille de buffer n'est pas limitée : dans UDP, le receivor recoit que les premières MAX_LEN caractère du messsage.  
+ 	 2 Dans cet exemple5, les détails des inputs et outputs sont encapsulés dans les méthodes "sendMessage" et "receiveMessage". Ça beaucoup facilité la vie des programmeur pour les functionnalités de haut niveau.
+
+*****************************************************************
+3ème partie : réalisation d’un outil de ‘chat’ avec les socket
+
+ 
+
+-         on s’intéresse à l’écriture d’une application de type ‘chat’ (messagerie instantanée) entre dans 2 utilisateurs. On souhaite dans un premier temps que ces 2 programmes se désignent explicitement (en précisant le numéro de port et le nom de la machine de l’interlocuteur). Pour simplifier l’écriture du programme, nous allons également considérer que les 2 programmes fonctionnement alternativement : un en émission puis en réception et l’autre, en réception puis en émission. 
+
+-         Dans un premier temps, vous pouvez  récupérer les fichiers dans le répertoire « chat/base ». Ce programme met en oeuvre une communication entre deux processus distants ou non et exécutent presque le même code.  Compilez le code puis sur deux terminaux, lancez :
+
+ 
+
+java Example2ReceiverSender  localhost  10000    20000    msg1
+
+java Example2SenderReceiver  localhost   20000    10000    msg2
+
+-         Décrivez ce qui se passe . Pourquoi l’ordre du lancement est il important ?
+[Result] : Example2ReceiverSender - > Example2SenderReceiver marche bine, tous les deux ont reçu les message d'autre, mais Example2SenderReceiver --> Example2ReceiverSender ne marche pas : le SenderReceiver envoit un message et personne ne le recoit et il commence à attendre un message; après, le receivorSender est lancé et commence à attendre un message : tous les deux sont bloqués sur la reception. 
+
+
+-         Modifiez le code de façon à introduire une boucle : chaque lecture se fait dans une boucle avec une temporisation de 3 secondes par exemple.
+[Result] Ils reçoivent les message avec délai de trois seconds. 
+
+
+-         On s’intéresse maintenant à une version plus élaborée avec une sorte de serveur de noms (qui mémorise les différents interlocuteurs enregistrés et les moyens de les contacter). Pour cela, chaque processus communicant est repéré par un nom logique (son identité). Le problème qui se pose ici est de savoir comment les deux processus peuvent se connaître mutuellement et connaître les ports qu’ils doivent utiliser pour communiquer. Notre approche est assez simple : elle consiste à ce que chacun des 2 écrivent ses coordonnées réseau dans un fichier qui porte le nom logique.
+
+-         Ecrivez le code …. Ou …. Trouvez la solution directement dans  « chat/solution ».
+
+-         Pour lancez le code de l’application, utilisez ici 2 terminaux et lancez les commandes suivantes : - on  suppose ici que le premier s’appelle lulu et qu’il attend des messages sur le port 20001 et désire communiquer avec titi
+
+ 
+
+ 
+
+java Example2ReceiverSender lulu 20001 titi "msg2"
+
+java Example2SenderReceiver titi 20004 lulu msg1
+
+ 
+
+ 
+
+ 
+
+ 
+
+4ème partie : multicast
+
+ 
+
+Dans le répertoire ‘multicast’ vous trouverez un exemple d’utilisation du multicast. Compilez le code et sur ou plusieurs machines lancez un ou plusieurs receveurs. Lancez ensuite l’expéditeur
+
+ 
+
