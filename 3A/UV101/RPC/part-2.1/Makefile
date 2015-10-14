@@ -3,18 +3,18 @@
 
 # Parameters
 
-CLIENT = calc_client
-SERVER = calc_server
+CLIENT = rdict_client
+SERVER = rdict_server
 
-SOURCES_CLNT.c = 
-SOURCES_CLNT.h = 
-SOURCES_SVC.c = 
-SOURCES_SVC.h = 
-SOURCES.x = calc.x
+SOURCES_CLNT.c = rdict_clnt_main.c
+SOURCES_CLNT.h = rdict.h
+SOURCES_SVC.c = rdict_svc_proc.c
+SOURCES_SVC.h = rdict.h
+SOURCES.x = rdict.x
 
-TARGETS_SVC.c = calc_svc.c     
-TARGETS_CLNT.c = calc_clnt.c     
-TARGETS = calc.h   calc_clnt.c calc_svc.c    
+TARGETS_SVC.c = rdict_svc.c   rdict_xdr.c 
+TARGETS_CLNT.c = rdict_clnt.c   rdict_xdr.c 
+TARGETS = rdict.h rdict_xdr.c rdict_clnt.c rdict_svc.c    
 
 OBJECTS_CLNT = $(SOURCES_CLNT.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)

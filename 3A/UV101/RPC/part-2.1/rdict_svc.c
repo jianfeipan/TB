@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "calccomplexe.h"
+#include "rdict.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>
@@ -17,12 +17,12 @@
 #endif
 
 static void
-calccompprog_1(struct svc_req *rqstp, register SVCXPRT *transp)
+rdictprog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		complexe add_1_arg;
-		complexe mul_1_arg;
-		complexe init_1_arg;
+		char *insertw_1_arg;
+		char *deletew_1_arg;
+		char *lookupw_1_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -33,22 +33,28 @@ calccompprog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
 		return;
 
-	case ADD:
-		_xdr_argument = (xdrproc_t) xdr_complexe;
+	case INITW:
+		_xdr_argument = (xdrproc_t) xdr_void;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) add_1_svc;
+		local = (char *(*)(char *, struct svc_req *)) initw_1_svc;
 		break;
 
-	case MUL:
-		_xdr_argument = (xdrproc_t) xdr_complexe;
+	case INSERTW:
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) mul_1_svc;
+		local = (char *(*)(char *, struct svc_req *)) insertw_1_svc;
 		break;
 
-	case INIT:
-		_xdr_argument = (xdrproc_t) xdr_complexe;
-		_xdr_result = (xdrproc_t) xdr_void;
-		local = (char *(*)(char *, struct svc_req *)) init_1_svc;
+	case DELETEW:
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) deletew_1_svc;
+		break;
+
+	case LOOKUPW:
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) lookupw_1_svc;
 		break;
 
 	default:
@@ -76,15 +82,15 @@ main (int argc, char **argv)
 {
 	register SVCXPRT *transp;
 
-	pmap_unset (CALCCOMPPROG, CALCVERS);
+	pmap_unset (RDICTPROG, RDICTVERS);
 
 	transp = svcudp_create(RPC_ANYSOCK);
 	if (transp == NULL) {
 		fprintf (stderr, "%s", "cannot create udp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, CALCCOMPPROG, CALCVERS, calccompprog_1, IPPROTO_UDP)) {
-		fprintf (stderr, "%s", "unable to register (CALCCOMPPROG, CALCVERS, udp).");
+	if (!svc_register(transp, RDICTPROG, RDICTVERS, rdictprog_1, IPPROTO_UDP)) {
+		fprintf (stderr, "%s", "unable to register (RDICTPROG, RDICTVERS, udp).");
 		exit(1);
 	}
 
@@ -93,8 +99,8 @@ main (int argc, char **argv)
 		fprintf (stderr, "%s", "cannot create tcp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, CALCCOMPPROG, CALCVERS, calccompprog_1, IPPROTO_TCP)) {
-		fprintf (stderr, "%s", "unable to register (CALCCOMPPROG, CALCVERS, tcp).");
+	if (!svc_register(transp, RDICTPROG, RDICTVERS, rdictprog_1, IPPROTO_TCP)) {
+		fprintf (stderr, "%s", "unable to register (RDICTPROG, RDICTVERS, tcp).");
 		exit(1);
 	}
 
