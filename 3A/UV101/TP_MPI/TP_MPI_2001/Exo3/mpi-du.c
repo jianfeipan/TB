@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 		  MPI_Send(cmd, strlen(cmd)+1, MPI_CHAR, status.MPI_SOURCE, tag, MPI_COMM_WORLD); 
 		}
 
-		}
+	}
 	  
 		printf("calcul termine pour le maitre\n");
 		(void)closedir( dirp );

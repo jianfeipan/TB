@@ -12,7 +12,7 @@
 
 
 /* N'hesitez pas a changer MAXX .*/
-#define MAXX  500
+#define MAXX  50
 #define MAXY (MAXX * 3 / 4)
 
 #define NX (2 * MAXX + 1)
@@ -30,9 +30,10 @@ int cases[NX][NY];
 int main(int argc, char *argv[])
 {
   MPI_Status status;
-  int i,j, num, rank, size, nbslaves;
+  int i,j, num, rank, size, nbslaves,loop, receivedsize, nbline;
   char inputstr [100],outstr [100];
 
+  loop = 1;
   /* Start up MPI */
 
   MPI_Init(&argc, &argv);
@@ -40,37 +41,55 @@ int main(int argc, char *argv[])
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   nbslaves = size -1;
+  
 
   if (rank == 0) {
 
-    int res;
+	//send to slaves 
+	for(i = 1; i<=nbslaves;i++){
+		nbline = -MAXY+i-1;
+		MPI_Send(&nbline, 1 , MPI_INT, i, DATATAG+1, MPI_COMM_WORLD);
+  	}
 
-    /* Begin User Program  - the master */
-
-   for(i = -MAXX; i <= MAXX; i++) {
-    for(j = -MAXY; j <= MAXY; j++) {
-
-      MPI_Recv(&res, 1, MPI_INT, 1, DATATAG, MPI_COMM_WORLD, &status);
-      cases[i + MAXX][j + MAXY] = res;
-    }
-    }
+	int lineBuff[2*MAXX+2];
+	while(loop){
+		MPI_Recv(lineBuff, 2*MAXX+3, MPI_INT, MPI_ANY_SOURCE, DATATAG, MPI_COMM_WORLD, &status);
+		if(++nbline >= MAXY){
+			loop=0;
+		}else{
+			for(i = -MAXX; i <= MAXX; i++) {
+				cases[i+MAXX][lineBuff[0]+MAXY] = lineBuff[MAXX+i+1];
+		   	}	
+			MPI_Send(&nbline, 1 , MPI_INT, status.MPI_SOURCE, DATATAG+1, MPI_COMM_WORLD);
+		}
+	}
+    for( i=1 ; i <=nbslaves ; i++ ) {
+	  MPI_Send(&nbline, 0, MPI_CHAR, i, DATATAG+1, MPI_COMM_WORLD); 
+	}
     dump_ppm("mandel.ppm", cases);
     printf("Fini.\n");
   }
 
   else {
-
-    /* On est l'un des fils */
-    double x, y;
-    int i, j, res, rc;
-    for(i = -MAXX; i <= MAXX; i++) {
-      for(j = -MAXY; j <= MAXY; j++) {
-	x = 2 * i / (double)MAXX;
-	y = 1.5 * j / (double)MAXY;
-	res = mandel(x, y);
-	MPI_Send(&res, 1 , MPI_INT, 0, DATATAG, MPI_COMM_WORLD); 
-      }
-    }
+	double x, y;
+	int lineBuff[2*MAXX+2];
+	int i, j, res, rc;
+	while(loop){
+		/* On est l'un des fils */
+		MPI_Recv(&res, 1, MPI_INT, 0, DATATAG+1, MPI_COMM_WORLD, &status);
+		MPI_Get_count (&status, MPI_INT, &receivedsize);
+		if ( receivedsize== 0) {
+			loop = 0;
+		}else{
+			lineBuff[0] = res;
+			y = 1.5 * res / (double)MAXY;
+			for(i = -MAXX; i <= MAXX; i++) {     
+				x = 2 * i / (double)MAXX;   		
+				lineBuff[i+MAXX+1] = mandel(x, y);		
+			}
+			MPI_Send(lineBuff,2*MAXX+3, MPI_INT, 0, DATATAG, MPI_COMM_WORLD); 
+		}
+	}
   }
 
   MPI_Finalize();

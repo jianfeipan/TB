@@ -19,15 +19,15 @@ VPATH=.:$(srcdir)
 	$(CC) $(CFLAGS) $(MPI_CFLAGS) -c $<
 
 # Targets
-#.PHONY clean
+#.PHONY: clean log trace std
 
 default: all
 all: mandel-basic-mpi
 
 mandel-basic-mpi: mandel-basic-mpi.o
 	$(MPE_CC) -mpilog -o $@ $? $(LD_FLAGS) $(MPI_LDFLAGS) 
-#	$(MPE_CC) -mpitrace -o $@ $? $(LD_FLAGS) $(MPI_LDFLAGS) 
-#	$(CC) -o $@ $? $(LD_FLAGS) $(MPI_LDFLAGS) 
+	#$(MPE_CC) -mpitrace -o $@ $? $(LD_FLAGS) $(MPI_LDFLAGS) 
+	#$(CC) -o $@ $? $(LD_FLAGS) $(MPI_LDFLAGS) 
 
 clean:
 	$(RM) -f *.o mandel-basic-mpi
