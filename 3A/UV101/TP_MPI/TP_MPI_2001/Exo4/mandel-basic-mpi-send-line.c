@@ -12,17 +12,14 @@
 
 
 /* N'hesitez pas a changer MAXX .*/
-#define MAXX  40
+#define MAXX  50
 #define MAXY (MAXX * 3 / 4)
-#define BLOCKSIZE 10
 
 #define NX (2 * MAXX + 1)
 #define NY (2 * MAXY + 1)
 
 #define NBITER 550
 #define DATATAG 150
-
-
 
 static int mandel(double, double);
 
@@ -50,23 +47,19 @@ int main(int argc, char *argv[])
 
 	//send to slaves 
 	for(i = 1; i<=nbslaves;i++){
-		nbline = -MAXY+(i-1)*BLOCKSIZE;
+		nbline = -MAXY+i-1;
 		MPI_Send(&nbline, 1 , MPI_INT, i, DATATAG+1, MPI_COMM_WORLD);
   	}
 
-	int lineBuff[(2*MAXX+1)*BLOCKSIZE+1];
+	int lineBuff[2*MAXX+2];
 	while(loop){
-		MPI_Recv(lineBuff, (2*MAXX+1)*BLOCKSIZE+1, MPI_INT, MPI_ANY_SOURCE, DATATAG, MPI_COMM_WORLD, &status);
-        nbline=nbline+BLOCKSIZE;
-		if(nbline > MAXY){
+		MPI_Recv(lineBuff, 2*MAXX+2, MPI_INT, MPI_ANY_SOURCE, DATATAG, MPI_COMM_WORLD, &status);
+		if(++nbline >= MAXY){
 			loop=0;
-		}else{		
-			j = lineBuff[0];	
-			for(j = lineBuff[0];j< MIN(lineBuff[0]+BLOCKSIZE,MAXY);j++){
-				for(i = -MAXX; i <= MAXX; i++) {
-					cases[i+MAXX][j+MAXY] = lineBuff[MAXX+i+1+(j-lineBuff[0])*(2*MAXX+1)];
-			   	}
-			}	
+		}else{
+			for(i = -MAXX; i <= MAXX; i++) {
+				cases[i+MAXX][lineBuff[0]+MAXY] = lineBuff[MAXX+i+1];
+		   	}	
 			MPI_Send(&nbline, 1 , MPI_INT, status.MPI_SOURCE, DATATAG+1, MPI_COMM_WORLD);
 		}
 	}
@@ -79,7 +72,7 @@ int main(int argc, char *argv[])
 
   else {
 	double x, y;
-	int lineBuff[(2*MAXX+1)*BLOCKSIZE+1];
+	int lineBuff[2*MAXX+2];
 	int i, j, res, rc;
 	while(loop){
 		/* On est l'un des fils */
@@ -89,16 +82,12 @@ int main(int argc, char *argv[])
 			loop = 0;
 		}else{
 			lineBuff[0] = res;
-			for(j=res;j< MIN(res+BLOCKSIZE,MAXY);j++){
-				//printf("rank : %d---> line : %d\n",rank, j);
-				y = 1.5 * j / (double)MAXY;
-				for(i = -MAXX; i <= MAXX; i++) {     
-					x = 2 * i / (double)MAXX;   		
-					lineBuff[i+MAXX+1+(j-res)*(2*MAXX+1)] = mandel(x, y);		
-				}
+			y = 1.5 * res / (double)MAXY;
+			for(i = -MAXX; i <= MAXX; i++) {     
+				x = 2 * i / (double)MAXX;   		
+				lineBuff[i+MAXX+1] = mandel(x, y);		
 			}
-			MPI_Send(lineBuff,(2*MAXX+1)*BLOCKSIZE+1, MPI_INT, 0, DATATAG, MPI_COMM_WORLD); 
-			//printf(" %d send line : %d\n",rank, res);
+			MPI_Send(lineBuff,2*MAXX+2, MPI_INT, 0, DATATAG, MPI_COMM_WORLD); 
 		}
 	}
   }
