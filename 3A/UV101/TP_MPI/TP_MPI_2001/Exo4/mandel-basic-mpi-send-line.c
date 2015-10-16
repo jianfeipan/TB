@@ -137,10 +137,10 @@ dump_ppm(const char *filename, int valeurs[NX][NY])
       if(valeurs[i][j] < 0) {
 	pixel[0] = pixel[1] = pixel[2] = 0;
       } else {
-	unsigned char val = MIN(valeurs[i][j] * 12, 255);
-	pixel[0] = val;
-	pixel[1] = 0;
-	pixel[2] = 255 - val;
+		unsigned char val = MIN(valeurs[i][j] * 12, 255);
+		pixel[0] = val;
+		pixel[1] = 0;
+		pixel[2] = 255 - val;
       }
       rc = fwrite(pixel, 1, 3, f);
       if(rc < 0) { perror("fwrite"); exit(1); }

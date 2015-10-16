@@ -12,9 +12,8 @@
 
 
 /* N'hesitez pas a changer MAXX .*/
-#define MAXX  40
+#define MAXX  400
 #define MAXY (MAXX * 3 / 4)
-#define BLOCKSIZE 10
 
 #define NX (2 * MAXX + 1)
 #define NY (2 * MAXY + 1)
@@ -31,7 +30,16 @@ int cases[NX][NY];
 
 
 int main(int argc, char *argv[])
-{
+{	
+  int blockSize = 10;
+  int sleepTime = 0;
+  if(argc>1){
+  	blockSize = atoi(argv[1]);
+	if(argc==3){
+		sleepTime = atoi(argv[2]);
+	}
+  }
+  double starttime, endtime;
   MPI_Status status;
   int i,j, num, rank, size, nbslaves,loop, receivedsize, nbline;
   char inputstr [100],outstr [100];
@@ -47,39 +55,45 @@ int main(int argc, char *argv[])
   
 
   if (rank == 0) {
-
+	starttime = MPI_Wtime();
 	//send to slaves 
 	for(i = 1; i<=nbslaves;i++){
-		nbline = -MAXY+(i-1)*BLOCKSIZE;
+		nbline = -MAXY+(i-1)*blockSize;
+		sleep(sleepTime);
 		MPI_Send(&nbline, 1 , MPI_INT, i, DATATAG+1, MPI_COMM_WORLD);
   	}
 
-	int lineBuff[(2*MAXX+1)*BLOCKSIZE+1];
+	int lineBuff[(2*MAXX+1)*blockSize+1];
 	while(loop){
-		MPI_Recv(lineBuff, (2*MAXX+1)*BLOCKSIZE+1, MPI_INT, MPI_ANY_SOURCE, DATATAG, MPI_COMM_WORLD, &status);
-        nbline=nbline+BLOCKSIZE;
+		MPI_Recv(lineBuff, (2*MAXX+1)*blockSize+1, MPI_INT, MPI_ANY_SOURCE, DATATAG, MPI_COMM_WORLD, &status);
 		if(nbline > MAXY){
 			loop=0;
-		}else{		
-			j = lineBuff[0];	
-			for(j = lineBuff[0];j< MIN(lineBuff[0]+BLOCKSIZE,MAXY);j++){
-				for(i = -MAXX; i <= MAXX; i++) {
-					cases[i+MAXX][j+MAXY] = lineBuff[MAXX+i+1+(j-lineBuff[0])*(2*MAXX+1)];
-			   	}
-			}	
-			MPI_Send(&nbline, 1 , MPI_INT, status.MPI_SOURCE, DATATAG+1, MPI_COMM_WORLD);
+		}	
+	    nbline=nbline+blockSize;
+		j = lineBuff[0];	
+		for(j = lineBuff[0];j< MIN(lineBuff[0]+blockSize,MAXY+1);j++){
+			printf("%d\n",j);
+			for(i = -MAXX; i <= MAXX; i++) {
+				cases[i+MAXX][j+MAXY] = lineBuff[MAXX+i+1+(j-lineBuff[0])*(2*MAXX+1)];
+		   	}
 		}
+		sleep(sleepTime);	
+		MPI_Send(&nbline, 1 , MPI_INT, status.MPI_SOURCE, DATATAG+1, MPI_COMM_WORLD);
+		
 	}
     for( i=1 ; i <=nbslaves ; i++ ) {
 	  MPI_Send(&nbline, 0, MPI_CHAR, i, DATATAG+1, MPI_COMM_WORLD); 
 	}
+	endtime = MPI_Wtime();
+	printf("using time : %lf\n",endtime-starttime);
     dump_ppm("mandel.ppm", cases);
     printf("Fini.\n");
+	
   }
 
   else {
 	double x, y;
-	int lineBuff[(2*MAXX+1)*BLOCKSIZE+1];
+	int lineBuff[(2*MAXX+1)*blockSize+1];
 	int i, j, res, rc;
 	while(loop){
 		/* On est l'un des fils */
@@ -89,7 +103,7 @@ int main(int argc, char *argv[])
 			loop = 0;
 		}else{
 			lineBuff[0] = res;
-			for(j=res;j< MIN(res+BLOCKSIZE,MAXY);j++){
+			for(j=res;j< MIN(res+blockSize,MAXY+1);j++){
 				//printf("rank : %d---> line : %d\n",rank, j);
 				y = 1.5 * j / (double)MAXY;
 				for(i = -MAXX; i <= MAXX; i++) {     
@@ -97,12 +111,12 @@ int main(int argc, char *argv[])
 					lineBuff[i+MAXX+1+(j-res)*(2*MAXX+1)] = mandel(x, y);		
 				}
 			}
-			MPI_Send(lineBuff,(2*MAXX+1)*BLOCKSIZE+1, MPI_INT, 0, DATATAG, MPI_COMM_WORLD); 
+			MPI_Send(lineBuff,(2*MAXX+1)*blockSize+1, MPI_INT, 0, DATATAG, MPI_COMM_WORLD); 
 			//printf(" %d send line : %d\n",rank, res);
 		}
 	}
   }
-
+  
   MPI_Finalize();
   return 0;
 }
