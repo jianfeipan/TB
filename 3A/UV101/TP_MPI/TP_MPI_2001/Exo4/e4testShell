@@ -1,5 +1,14 @@
+make
 mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 1 
 mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 2 
 mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 5 
 mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 15
 mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 20
+
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10 1 
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10 2
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10 5
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10 10 
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10 15 
+mpirun --np 3 --hostfile hostfile -- mandel-basic-mpi 10 20
