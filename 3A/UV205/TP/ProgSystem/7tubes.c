@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 
 	//pipe for tubes
 	if(pipe(pipe_fd)==-1){
-		printf("piple error\n");	
+		printf("piple error\n");
 	}else{
 		printf("fd_read : %d , fd_write : %d ", pipe_fd[0],pipe_fd[1]);
 	}
@@ -28,13 +28,13 @@ int main(int argc, char **argv) {
 		printf("fork error\n");
 		exit(EXIT_FAILURE);
   	}
-	
+
 	if(pid > 0){//father
  		signal(SIGCHLD,fin);
-		printf("child pid : %d\n", pid); 
-		close(STDOUT_FILENO);          
-		dup(pipe_fd[1]); 
-		close(pipe_fd[1]);              
+		printf("child pid : %d\n", pid);
+		close(STDOUT_FILENO);
+		dup(pipe_fd[1]);
+		close(pipe_fd[1]);
 	}else{//child
 		close(STDIN_FILENO);
 		dup(pipe_fd[0]);

@@ -26,10 +26,17 @@ char getkey() {
 int setsilent(struct termios *initial_term) {
   int r;
   struct termios term;
+  term = *initial_term;
+  term.c_lflag &= ~ECHO;
+  term.c_lflag &= ~ICANON;
+  term.c_cc[VMIN] = 1;
+  term.c_cc[VTIME] = 0;
+  tcsetattr(0,TCSANOW,&term);	
   return 0;
 }
 
 int restaure_term(struct termios *initial_term) {
+  tcsetattr(0,TCSANOW,initial_term);	
   return 0;
 }
 
@@ -52,7 +59,7 @@ char *get_pass() {
 
 int main() {
   int r;
-  char buf[BUFSIZE], *s, *pwd;
+  char buf[BUFSIZE], *s, *pwd, *pwdCrypt;
   struct termios initial_term;
   char key[2];
   key[0] = getkey();
@@ -60,12 +67,16 @@ int main() {
   printf("key = %s\n", (char * )key);
    	
   printf("Tapez votre mot de passe : ");
-  pwd = get_pass(); 	
+  if( tcgetattr(0,&initial_term) !=0){
+	perror("get termios");
+	exit(EXIT_FAILURE);
+  }
   setsilent(&initial_term);
+  pwd = get_pass(); 
+  pwdCrypt = crypt(pwd,key);
+  printf("Mot de passe chiffre : %s\n", pwdCrypt);
+	restaure_term(&initial_term);
   s = fgets(buf, BUFSIZE, stdin);
-
-  printf("Mot de passe chiffre : %s\n", pwd);
   
-  restaure_term(&initial_term);
   exit(EXIT_SUCCESS);
 }
