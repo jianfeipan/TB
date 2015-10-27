@@ -36,7 +36,6 @@ void myExit(int n){
 enum TypeFichier typeFichier(char *fichier) {
   struct stat status;
   int r;
-
   r = stat(fichier, &status);
   if (r < 0)
     return ERREUR;
@@ -70,9 +69,10 @@ bool envoiFichier(char *fichier, int soc) {
 		if((fd = open(fichier,O_RDONLY))==-1)
 			write(soc, ERROR404, strlen(ERROR404));
 		while(true){
-			if((nread = read(fd,buf,BUFSIZE)) == -1)
+			if((nread = read(fd,buf,BUFSIZE)) == -1){
+				perror("Error");
 				write(soc, ERROR403, strlen(ERROR403));
-			else if(nread == 0){
+			}else if(nread == 0){
 				break;
 			}else{
 				write(soc, buf, nread);
@@ -113,11 +113,11 @@ bool envoiRep(char *rep, int soc) {
      * l'icone folder ou generic en fonction du type du fichier.
      * (Tester le nom de l'element avec le chemin complet.) */
 	if(typeFichier(pdi->d_name) == NORMAL)	{
-		sprintf(nom, "<li> <img src=\"icons/generic.gif\"> %s</li>", pdi->d_name);
+		sprintf(nom, "<li> <img src=\"/icons/generic.gif\"> %s</li>", pdi->d_name);
 		write(soc, nom, strlen(nom));
 	}
 	else if(typeFichier(pdi->d_name) == REPERTOIRE) {
-		sprintf(nom, "<li> <img src=\"icons/folder.gif\"> %s</li>", pdi->d_name);
+		sprintf(nom, "<li> <img src=\"/icons/folder.gif\"> %s</li>", pdi->d_name);
 		write(soc, nom, strlen(nom));
 	}
 	else{
@@ -133,7 +133,7 @@ bool envoiRep(char *rep, int soc) {
 }
 
 
-void communication(int soc, struct sockaddr *from, socklen_t fromlen) {
+void communication(int soc, struct sockaddr_storage from, socklen_t fromlen) {
   int s;
   char buf[BUFSIZE];
   ssize_t nread;
@@ -183,15 +183,23 @@ void communication(int soc, struct sockaddr *from, socklen_t fromlen) {
        */
 
       /************ A completer ici**********/
-		if(typeFichier(pf) == NORMAL)	envoiFichier(pf,soc);
-		else if(typeFichier(pf) == REPERTOIRE) envoiRep(pf,soc);
-		else ;
+		if(typeFichier(pf) == NORMAL){	
+			envoiFichier(pf,soc);
+		}else if(typeFichier(pf) == REPERTOIRE){
+			 envoiRep(pf,soc);
+		}else{ 
+			;
+		}
+	  break;
+	case PUT:
+	  perror("service not implmented!");
+	  exit(-1);
   }
 
   close(soc);
 }
 
-
+//http://localhost:12345/index.html
 int main(int argc, char **argv) {
   int sfd, s, ns, r, pid;
   struct addrinfo hints;
@@ -245,11 +253,11 @@ int main(int argc, char **argv) {
   freeaddrinfo(result); /* Plus besoin */
 
   /* Positionnement de la machine a etats TCP sur listen */
-  listen(sfd,1);//*********************???
-
+  listen(sfd,5);//*********************???
+  fromlen = sizeof(from);
   for (;;) {
     /* Acceptation de connexions */
-    fromlen = sizeof(from);
+
     ns = accept(sfd,(struct sockaddr *)&from,&fromlen);//*********************
     if (ns == -1) {
       perror("accept");
@@ -265,8 +273,8 @@ int main(int argc, char **argv) {
 	//child
 	if(pid == 0){
 		close(sfd);
-		communication(ns,(struct sockaddr *)&from,fromlen);
-		exit(EXIT_SUCCESS);
+		communication(ns,from,fromlen);
+		return 0;
 	}
 	//parent
 	else{
