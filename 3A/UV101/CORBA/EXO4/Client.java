@@ -75,20 +75,17 @@ public class Client {
 		String nom, prenom, numero, operation;
 
 
-		while(true) 
-			{	
-      			try
-				{
-	      			System.out.println(" Que faire : 1- creation");
-                        	System.out.println("             2- rechercher");
-                       	 	System.out.println("             3- resilier");
-	      			operation = br.readLine();
-	      
+		while(true){      			
+			try{
+      			System.out.println(" Que faire : 1- creation");
+                    	System.out.println("             2- rechercher");
+                   	 	System.out.println("             3- resilier");
+      			operation = br.readLine();
+      
 
-				// Creation d'un abonne
-				//
-	      			if (operation.equals("1"))  
-					{
+			// Creation d'un abonne
+			//
+      			if (operation.equals("1")){
 					System.out.print("Numero = " );
 					numero = br.readLine();
 					System.out.print("Nom = " );
@@ -99,49 +96,39 @@ public class Client {
 
 					gestion.creation_abonne(num.intValue() ,nom, prenom, ref);
 					System.out.println("Creation abonne numero " + numero + ": abonne " + ref.value.nom_prenom());
-					}  
+				}  
 
-					// Recherche d'un abonne
-					//
-	      			else	if (operation.equals("2"))  
-                        			{
-						System.out.print("Numero = " );
-						numero = br.readLine();
-						Integer num = new Integer(numero);
+				// Recherche d'un abonne
+				//
+      			else if (operation.equals("2")) {
+					System.out.print("Numero = " );
+					numero = br.readLine();
+					Integer num = new Integer(numero);
 
-						gestion.rechercher_abonne(num.intValue() ,ref);
-						System.out.println("Numero " + numero + ": abonne " + ref.value.nom_prenom());
-                        			}
+					gestion.rechercher_abonne(num.intValue() ,ref);
+					System.out.println("Numero " + numero + ": abonne " + ref.value.nom_prenom());
+    			}// Resiliation d'un abonne
+      			else if (operation.equals("3"))  
+                				{
+					System.out.print("Numero = " );
+					numero = br.readLine();
+					Integer num = new Integer(numero);
 
-						// Resiliation d'un abonne
-						//
-	      				else	if (operation.equals("3"))  
-                        				{
-							System.out.print("Numero = " );
-							numero = br.readLine();
-							Integer num = new Integer(numero);
-
-							gestion.resilier_abonne(num.intValue());
-							System.out.println("Numero " + numero + " resilie");
-                        				}
-						else System.out.println("  Saisir '1', '2'  ou '3'");
+					gestion.resilier_abonne(num.intValue());
+					System.out.println("Numero " + numero + " resilie");
+                   				
+				}else {
+					System.out.println("  Saisir '1', '2'  ou '3'");
 				}
-      		catch(IOException ex)
-			{
-			System.out.println("Erreur lecture ");
-			System.exit(1);
-			}
-      		catch(numeroInconnu ex)
-			{
-			System.out.println("Exception numeroInconnu");
-			}
-      		catch(dejaExistant ex)
-			{
-			System.out.println("Exception dejaExistant");
+			}catch(IOException ex){
+				System.out.println("Erreur lecture ");
+				System.exit(1);
+			}catch(numeroInconnu ex){
+				System.out.println("Exception numeroInconnu");
+			}catch(dejaExistant ex){
+				System.out.println("Exception dejaExistant");
 			}
 		}
-
-
-		}
+	}
 }
 
