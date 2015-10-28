@@ -5,8 +5,10 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <netinet/in.h>
 
 #define BUFSIZE 100000
+
 
 int main(int argc, char **argv) {
   int sfd, s, rsz, r;
@@ -17,21 +19,23 @@ int main(int argc, char **argv) {
   struct sockaddr_storage from;
   socklen_t fromlen;
   char host[NI_MAXHOST], service[NI_MAXSERV];
+  struct ip_mreqn ipm;
+  struct in_addr localaddr;
 
-  if (argc != 2) {
+  if (argc != 3) {
     printf("Usage: %s port\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
  /* Construction de l'adresse locale (pour bind) */
   memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = AF_INET6;           /* Force IPv6 */
+  hints.ai_family = AF_INET;          
   hints.ai_socktype = SOCK_DGRAM;       /* Datagram socket */
-  hints.ai_flags = AI_PASSIVE;          /* Pour l'adresse IP joker */
-  hints.ai_flags |= AI_V4MAPPED|AI_ALL; /* IPv4 remappe en IPv6 */
+
+  hints.ai_flags=0;
   hints.ai_protocol = 0;                /* Any protocol */
 
-  s = getaddrinfo(NULL, argv[1], &hints, &result);
+  s = getaddrinfo(argv[2], argv[1], &hints, &result);
   if (s != 0) {
     fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
     exit(EXIT_FAILURE);
@@ -44,12 +48,12 @@ int main(int argc, char **argv) {
   for (rp = result; rp != NULL; rp = rp->ai_next) {
 
     /* Creation de la socket */
-    sfd = ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
+    sfd = socket(rp->ai_family, rp->ai_socktype,rp->ai_protocol);
     if (sfd == -1)
       continue;
 
     /* Association d'un port a la socket */
-    r = ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
+    r = bind(sfd, rp->ai_addr, rp->ai_addrlen);
     if (r == 0)
       break;            /* Succes */
     close(sfd);
@@ -59,20 +63,39 @@ int main(int argc, char **argv) {
     perror("bind");
     exit(EXIT_FAILURE);
   }
-  freeaddrinfo(result); /* Plus besoin */
+
 
   /* Force la taille du buffer de reception de la socket */
-  rsz = 800000;
+  rsz = 80000;
   if ( setsockopt(sfd, SOL_SOCKET, SO_RCVBUF, &rsz, sizeof(rsz)) == 0 )
     printf("SO_RCVBUF apres forcage: %d octets\n", rsz);
   else
     perror("setsockopt SO_RCVBUF");
 
+
+  /*accept multicast message */
+
+  memset(&ipm,0,sizeof(struct ip_mreqn));
+  memset(&localaddr,0,sizeof(struct in_addr));
+  localaddr.s_addr = INADDR_ANY;
+  ipm.imr_address = localaddr;
+  ipm.imr_ifindex = 0;
+  ipm.imr_multiaddr = ((struct sockaddr_in *)rp->ai_addr)->sin_addr;
+  if ( setsockopt(sfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &ipm, sizeof(ipm)) == 0 )
+	printf("multicast\n");
+  freeaddrinfo(result); /* Plus besoin */
+  /*quit multicast message */
+ //if ( setsockopt(sfd, IPPROTO_IP, IP_DROP_MEMBERSHIP_LOOP, ???, sizeof(?)) == 0 )
+//	printf("quit multicast\n");
+ 
+
+
+
   /* Boucle de communication */
   for (;;) {
     /* Reception donnees */
     fromlen = sizeof(from);
-    nrecv = ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
+    nrecv = recvfrom(sfd, buf, BUFSIZE, 0, (struct sockaddr *)&from, &fromlen);
     if (nrecv == -1) {
       perror("Erreur en lecture socket\n");
       exit(EXIT_FAILURE);

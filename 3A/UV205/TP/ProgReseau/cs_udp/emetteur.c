@@ -53,10 +53,10 @@ int main(int argc, char **argv) {
      On essaie chaque adresse jusqu'a ce que socket(2) reussisse. */
   for (rp = result; rp != NULL; rp = rp->ai_next) {
     /* Ouverture de la socket */
-    sfd = ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
+    sfd = socket(rp->ai_family, rp->ai_socktype,rp->ai_protocol);
     if (sfd >= 0)
       break;
-  }
+  }c0e1068db5f8e01e7050fb4d8cbad10fbbee2ef6
   if (rp == NULL) {     /* Aucune adresse valide */
     fprintf(stderr, "Impossible d'ouvrir une socket vers %s\n", argv[1]);
     perror("socket");
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   }
 
   /* Envoi donnees */
-  nsend = ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
+  nsend = sendto(sfd, buf, volume, 0, sa,salen);
   if (nsend < 0)
     perror("sendto");
 
