@@ -15,7 +15,7 @@ public class Client
 	{
 		try
 		{
-			String nomService = "//" + Machine + ":" + portRmiregistry + "/PileServeur";
+			String nomService = "//" + Machine + ":" + portRmiregistry + "/UsinePile";
 			System.out.println (" Connection au service : " + nomService);
 			UsinePile usine = (UsinePile) Naming.lookup (nomService);
 

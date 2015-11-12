@@ -15,14 +15,20 @@ public class Client
 	{
 		try
 		{
-			String nomService = "//" + Machine + ":" + portRmiregistry + "/CompteServeur";
+			String nomService = "//" + Machine + ":" + portRmiregistry + "/acompteServeur";
 			System.out.println (" Connection au service : " + nomService);
 
 			// Se connecter à un objet de type compte et invoquer les methodes
 			//		- debiter/crediter
 			//		- lire_solde
-			***
-				
+			Compte obj = (Compte)Naming.lookup(nomService); 
+			System.out.println (" sold : " + obj.lire_solde());	
+			obj.crediter(10.8);
+			System.out.println (" crediter(10.8) : " + obj.lire_solde());	
+			obj.crediter(1.2);
+			System.out.println (" crediter(1.2) : " + obj.lire_solde());
+			obj.debiter(1.3);	
+			System.out.println (" debiter(1.3) : " + obj.lire_solde());	
 		}
 
 		catch (RemoteException e)
