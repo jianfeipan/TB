@@ -128,7 +128,7 @@ java Example2ReceiverSender  localhost  10000    20000    msg1
 java Example2SenderReceiver  localhost   20000    10000    msg2
 
 -         Décrivez ce qui se passe . Pourquoi l’ordre du lancement est il important ?
-[Result] : Example2ReceiverSender - > Example2SenderReceiver marche bine, tous les deux ont reçu les message d'autre, mais Example2SenderReceiver --> Example2ReceiverSender ne marche pas : le SenderReceiver envoit un message et personne ne le recoit et il commence à attendre un message; après, le receivorSender est lancé et commence à attendre un message : tous les deux sont bloqués sur la reception. 
+[Result] : Example2ReceiverSender - > Example2SenderReceiver marche bien, tous les deux ont reçu les message d'autre, mais Example2SenderReceiver --> Example2ReceiverSender ne marche pas : le SenderReceiver envoit un message et personne ne le recoit et il commence à attendre un message; après, le receivorSender est lancé et commence à attendre un message : tous les deux sont bloqués sur la reception. 
 
 
 -         Modifiez le code de façon à introduire une boucle : chaque lecture se fait dans une boucle avec une temporisation de 3 secondes par exemple.

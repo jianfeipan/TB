@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
       exit(EXIT_FAILURE);
     }
     /* positionner maintenant le flag avec O_NONBLOCK */
-    flag = fcntl(0, F_SETFL,O_NONBLOCK);
+    flag = fcntl(0, F_SETFL,flag|O_NONBLOCK);
 
     if (flag < 0) {
       perror("Fcntl F_SETFL");

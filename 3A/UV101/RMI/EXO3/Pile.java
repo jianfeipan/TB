@@ -8,7 +8,7 @@ public interface Pile extends java.rmi.Remote
 	int haut()
 		throws java.rmi.RemoteException;
 
-	void depiler()
+	int depiler()
 		throws java.rmi.RemoteException;
 
 	void vider()
