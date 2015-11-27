@@ -12,7 +12,7 @@ int Point::gety() const{
 }
 
 void Point::show() const{
-	cout<<"point show:("<<this->x<<","<<this->y<<")"<<endl;
+	cout<<"("<<this->x<<","<<this->y<<")"<<endl;
 }
 
 void Point::shift(int _x,int _y){

@@ -1,5 +1,5 @@
 #ifndef _POINT_
-#define _PoINT_
+#define _POINT_
 class Point{
 	private :
 		int x;
@@ -7,7 +7,8 @@ class Point{
 
 	public :
 
-		Point(const int _x, const int _y){x=_x;y=_y;};
+		Point(int _x, int _y){x=_x;y=_y;};
+		Point(const Point& _p){x=_p.getx();y=_p.gety();};
 		Point(){x=-1;y=-1;};
 		~Point(){};
 
