@@ -1,5 +1,5 @@
 #include "Compare.h"
 
-bool operator () (const int& a, const int& b) {
+bool Compare::operator () (int a, int b) {
 	return a<b;
 }
