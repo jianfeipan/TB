@@ -6,8 +6,25 @@
 #include "./Widget/Widget.h"
 #include "./Window/Window.h"
 #include <iostream>
+#include <algorithm>
 #include <vector>
 using namespace std;
+void remplit(vector<int>& v){
+	int i=0;
+	for(vector<int>::iterator it=v.begin(); it!=v.end();++it){
+		*it=i++;
+	}
+
+}
+
+vector<int>::iterator select(vector<int>& v){
+	return remove_if(v.begin(),v.end(),[] (int x){return x%5!=0;});
+}
+
+void compter(vector<int>& v){
+	for(int i=0;i<=110;i++)
+		cout<< v[i]<<endl;
+}
 
 int main(){
 	PointFactory pf;
@@ -29,5 +46,30 @@ int main(){
 	for(vector<Widget*>::iterator it=widgets.begin(); it!=widgets.end();++it)
 		(*it)->draw();
 
+	for(auto it=widgets.begin(); it!=widgets.end();++it)
+		(*it)->draw();
+
+	for(const auto& it:widgets)
+		it->draw();
+
+	std::vector<int> v(100); 
+	remplit(v);
+	auto end =select(v);
+	for(vector<int>::iterator it=v.begin(); it!=end;++it){
+		cout<<*it<<endl;
+	}
+	vector<int> myvector (7);
+    copy ( v.begin(), v.begin()+7, myvector.begin() );
+
+	for(vector<int>::iterator it=myvector.begin(); it!=myvector.end();++it){
+		cout<<*it;
+	}
+	cout<<endl;
+
+	for_each(myvector.begin(),myvector.end(),[] (int x){cout<< x; });
+
+	cout <<*find_if(myvector.begin(),myvector.end(),[] (int x){return x>12;} );
+
+	
 	return 0;
 }
