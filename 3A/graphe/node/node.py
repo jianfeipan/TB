@@ -18,5 +18,11 @@ class Node:
 
 	def addPath(self, destination, path):
 		utils.Utils.isStr(destination)
-		utils.Utils.isList(path)
 		self.routingPath[destination] = path
+
+class Path:
+	def __init__(self, aPath, aValue):
+		utils.Utils.isList(aPath)
+		utils.Utils.isFloat(aValue)
+		self.path = aPath
+		self.value = aValue
