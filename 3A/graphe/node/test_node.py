@@ -15,21 +15,21 @@ class TestNode(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			self.anode.addConnection('192.168.0.1','12.0')
 
-	def test_addPath_raise_TypeError(self):
-		with self.assertRaises(TypeError):
-			self.anode.addPath('192.168.0.1','192.168.0.4')
-		with self.assertRaises(TypeError):
-			self.anode.addPath(1,['192.168.0.4','192.168.0.5','192.168.0.6'])
-
 	def test_we_can_add_connection_to_the_node(self):
 		self.anode.addConnection('192.168.0.1',12.0)
 		self.anode.addConnection('192.168.0.2',11.0)
 		self.assertEqual({'192.168.0.1':12.0,'192.168.0.2':11.0}, self.anode.connections)
 
-
+	def test_PathConstrucor_raise_TypeError(self):
+		with self.assertRaises(TypeError):
+			node.Path(1,12.0)
+		with self.assertRaises(TypeError):
+			node.Path([],'a')
+	
 	def test_we_can_add_routingPath_to_the_node(self):
-		self.anode.addPath('192.168.0.1',['192.168.0.4','192.168.0.5','192.168.0.6'])
-		self.assertEqual({'192.168.0.1':['192.168.0.4','192.168.0.5','192.168.0.6']}, self.anode.routingPath)			
+		self.path = node.Path(['192.168.0.4','192.168.0.5','192.168.0.6'],0.2);
+		self.anode.addPath('192.168.0.1',self.path)
+		self.assertEqual({'192.168.0.1':self.path}, self.anode.routingPath)			
 
 if __name__ == '__main__':
 	unittest.main()
