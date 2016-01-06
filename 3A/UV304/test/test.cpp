@@ -1,9 +1,13 @@
 #include <iostream>
 using namespace std;
+class X{
+public:
+	X() {cout<<"X"<<endl;}
+};
 
 int main(){
-	int a = 300;
-	int *intpt = &a;
-	cout<< " 300 "<< *intpt << endl;
+	X x();
+	X y{};
+
 	return 0;
 }
