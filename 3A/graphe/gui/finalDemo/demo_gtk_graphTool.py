@@ -10,16 +10,26 @@ class MyListBox(Gtk.ListBox):
     def init_ui(self):
         self.add_row(0, "255.255.255.255")
         self.add_row(1, "255.255.255.254")
+        self.add_row(2, "255.255.255.253")
+        self.add_row(3, "255.255.255.252")
+        self.add_row(4, "255.255.255.251")
+        self.add_row(5, "255.255.255.250")
 
     def add_row(self, index, name):
         row = Gtk.ListBoxRow()
         h_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         row.add(h_box)
         check = Gtk.CheckButton()
+        check.connect("toggled", self.callback, "check button " + `index`)
+
         h_box.pack_start(Gtk.Label(index, xalign=0), True, True, 0)
         h_box.pack_start(Gtk.Label(name, xalign=0), True, True, 0)
         h_box.pack_start(check, True, True, 0)
         self.add(row)
+
+    @staticmethod
+    def callback(widget, data=None):
+        print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
 
 
 class MyGraphWidget(GraphWidget):
@@ -54,6 +64,7 @@ class MyWindow(Gtk.Window):
 
         table = Gtk.Table(14, 14, True)
         self.add(table)
+
         self.label = Gtk.Label(label="Nodes :", xalign=0)
 
         g = MyGraph()
@@ -65,6 +76,7 @@ class MyWindow(Gtk.Window):
         table.attach(self.label, 0, 4, 0, 1)
         table.attach(self.listbox, 0, 4, 1, 14)
         table.attach(self.graphWidget, 5, 14, 0, 14)
+
 
 
 def main():
